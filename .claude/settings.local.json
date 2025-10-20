@@ -4,7 +4,11 @@
       "Bash(npm install:*)",
       "Bash(npm test:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(tree -L 2 \"C:\\Users\\antjs\\nda-dashboard\\src\" -I 'node_modules')",
+      "Bash(node scripts/analyzeExcelData.js)",
+      "Bash(npm run data:process)",
+      "Bash(tree -L 2 -I 'node_modules|dist' --dirsfirst)"
     ],
     "deny": [],
     "ask": []

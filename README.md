@@ -1,11 +1,21 @@
-# NDA Impact Dashboard - Hackathon Resource Guide
+# NDA Impact Dashboard - Real Survey Data Integration
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://nda-dashboard.tortoiseai.co.uk)
 [![GitHub Stars](https://img.shields.io/github/stars/yourusername/nda-dashboard?style=social)](https://github.com/yourusername/nda-dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Built with React](https://img.shields.io/badge/Built%20with-React-61dafb)](https://reactjs.org/)
 
-**A ready-to-use data platform for Challenge 3 hackathon participants to generate insights and evidence for Can't Buy My Silence's NDA reform advocacy**
+**A data visualization platform for Can't Buy My Silence's NDA reform advocacy using real survey data from 1,656 responses**
+
+## 🆕 Latest Update: Real Survey Data Integration
+
+**The dashboard now uses real survey data from Excel files instead of synthetic data!**
+
+- ✅ **1,656 real survey responses** from "The Speak Out Survey"
+- ✅ **206-column comprehensive dataset** including demographics, harassment types, impacts, and reporting outcomes
+- ✅ **Extensible data pipeline** for adding new survey responses
+- ✅ **No database required** - runs entirely from Excel files
+- ✅ **Automated data validation** and transformation
 
 🔗 **[Live Demo](https://nda-dashboard.tortoiseai.co.uk)** | **[GitHub Repository](https://github.com/yourusername/nda-dashboard)**
 
@@ -38,22 +48,11 @@ You have **limited hackathon time**. Use it wisely. This platform gives you:
 
 ---
 
-## 🚀 Quick Start for Hackathon Participants
+## 🚀 Quick Start
 
-### Option 1: Use the Live Dashboard (Fastest)
+### Installation & Setup
 
-**Time to start: 0 minutes**
-
-1. Visit **[https://nda-dashboard.tortoiseai.co.uk](https://nda-dashboard.tortoiseai.co.uk)**
-2. Explore the data visualizations
-3. Use insights to inform YOUR hackathon project
-4. Reference this data in your submission
-
-**Best for:** Non-technical participants, teams focusing on analysis/strategy
-
-### Option 2: Clone & Extend (For Developers)
-
-**Time to start: 5 minutes**
+**Time to start: 3 minutes**
 
 ```bash
 # Clone the repository
@@ -63,39 +62,53 @@ cd nda-dashboard
 # Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
-# Edit .env with your Supabase credentials (see below)
-
-# Start development server
+# Start development server (data loads automatically from Excel files)
 npm run dev
 ```
 
-**Best for:** Teams building custom features, new visualizations, or complementary tools
+The dashboard will start at `http://localhost:5173` and automatically load data from the Excel file in `public/data/`.
 
-### Option 3: Access the Data Directly
+**No database setup required!** The survey data is loaded directly from Excel files.
 
-**Time to start: 2 minutes**
+### Data Pipeline Overview
 
-Connect to our Supabase database and query the data yourself:
+The dashboard uses a modern, file-based data pipeline:
 
-```javascript
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  'YOUR_SUPABASE_URL',  // Get from .env.example
-  'YOUR_SUPABASE_KEY'
-)
-
-// Example: Fetch all NDA responses
-const { data, error } = await supabase
-  .from('nda_responses')
-  .select('*')
-
-// Now build whatever you want with this data!
+```
+Excel Survey Data (206 columns, 1,656 responses)
+    ↓
+Excel Parser (src/utils/excelParser.js)
+    ↓
+Data Transformer (src/utils/surveyDataTransformer.js)
+    ↓
+Dashboard Components (5 tabs with visualizations)
 ```
 
-**Best for:** Data scientists, analysts, teams building totally new tools
+### Available Commands
+
+```bash
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run preview          # Preview production build
+npm test                 # Run tests
+npm run lint             # Run ESLint
+
+# Data processing scripts
+npm run data:analyze     # Analyze Excel file structure
+npm run data:process     # Process and validate survey data
+npm run data:validate    # Validate data and export JSON
+```
+
+### Adding New Survey Data
+
+See **[DATA_IMPORT.md](./DATA_IMPORT.md)** for detailed instructions on adding new survey responses.
+
+**Quick steps:**
+1. Place Excel file in `/data` folder
+2. Copy to `/public/data` folder
+3. Run `npm run data:validate` to check schema
+4. Update filename in `src/App.jsx`
+5. Restart dev server
 
 ---
 
@@ -314,10 +327,11 @@ const percentRepeat = (repeatOffenders.length / data.length) * 100
 
 ### Tech Stack
 
-- **Frontend:** React 18 + Vite
-- **Styling:** Tailwind CSS
-- **Charts:** Recharts
-- **Database:** Supabase (PostgreSQL)
+- **Frontend:** React 19 + Vite 7
+- **Styling:** Custom CSS (Tortoise AI branding)
+- **Charts:** Recharts 3
+- **Data Source:** Excel files (xlsx library)
+- **Data Processing:** Custom transformation pipeline
 - **Deployment:** Netlify/Vercel compatible
 - **Testing:** Vitest + React Testing Library
 
@@ -326,18 +340,11 @@ const percentRepeat = (repeatOffenders.length / data.length) * 100
 #### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
-- Supabase account (optional if using provided instance)
+- Excel survey data file (included in `/data` folder)
 
-#### Environment Variables
+#### No Environment Variables Required!
 
-Create a `.env` file in the root directory:
-
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-**For hackathon participants:** Contact organizers for shared Supabase credentials, or set up your own instance.
+The dashboard loads data directly from Excel files. No external database or API keys needed.
 
 #### Commands
 
@@ -351,53 +358,91 @@ npm run test:ui      # Run tests with UI
 npm run test:coverage # Run tests with coverage
 ```
 
-### Database Schema
+### Data Schema
 
-**Table: `nda_responses`**
+**Source: Excel File (206 columns)**
 
-```sql
-CREATE TABLE nda_responses (
-  id SERIAL PRIMARY KEY,
-  sector VARCHAR(100),
-  nda_used BOOLEAN,
-  severity_level VARCHAR(20), -- 'None', 'Low', 'Medium', 'High', 'Severe'
-  impact_duration_years INTEGER,
-  repeat_offender BOOLEAN,
-  -- Additional fields for mental health impact, financial impact, etc.
-  created_at TIMESTAMP DEFAULT NOW()
-);
-```
+The survey data includes:
 
-**Example query:**
+**Demographics (8 fields):** Age, Gender, Sexuality, Ethnicity, Disability, Religion, Marital status
+
+**Context (5 fields):** Sector, Location, Company, StartDate, EndDate
+
+**Incident Details (4 fields):** Perpetrator, PerpetratorGender, Targets, ReportingType
+
+**Multi-Select Categories (93 binary fields):**
+- Treatment Types (26): Treatment_Microaggressions, Treatment_Gaslighting, etc.
+- Discrimination Types (14): Discrimination_Age, Discrimination_Disability, etc.
+- Sexual Harassment (11): SexHarass_Comments, SexHarass_Touching, etc.
+- Methods (7): Method_InPerson, Method_Virtually, etc.
+- Impacts (11): Impact_MentalHealth, Impact_Career, etc.
+- Formal Consequences (12): FormalConsequence_HarasserMoved, etc.
+- Informal Consequences (12): InformalConsequence_VictimLeft, etc.
+
+**Reporting Paths (13 fields):** Formal/Informal reporting details, satisfaction scores, NDA status
+
+**Transformed Dashboard Format:**
+
+The raw 206-column structure is transformed to:
+
 ```javascript
-// Fetch all responses where severity is High or Severe
-const { data } = await supabase
-  .from('nda_responses')
-  .select('*')
-  .in('severity_level', ['High', 'Severe'])
+{
+  id: string,
+  sector: string,
+  nda_signed: boolean,
+  repeat_offender: boolean,
+  years_since_signing: number,
+  impact_mental_health: number,    // 0-10 scale
+  impact_career: number,           // 0-10 scale
+  impact_financial: number,        // 0-10 scale
+  impact_isolation: number,        // 0-10 scale
+  impact_fear_speaking: number,    // 0-10 scale
+  demographics: { /* original fields */ },
+  incident: { /* original fields */ },
+  raw: { /* full 206-column data */ }
+}
 ```
+
+See `src/types/surveyTypes.js` for complete type definitions.
 
 ### Project Structure
 
 ```
 nda-dashboard/
 ├── src/
-│   ├── components/          # React components
-│   │   ├── DashboardTab.jsx      # Main visualization dashboard
-│   │   ├── EvidenceTab.jsx       # Evidence generator for policy makers
-│   │   ├── SurveyTab.jsx         # Survey enhancement tool
-│   │   └── StatsCard.jsx         # Reusable statistics card
-│   ├── utils/              # Utility functions
-│   │   └── dataTransform.js      # Data transformation helpers
-│   ├── test/               # Test files
-│   ├── App.jsx             # Main application component
-│   ├── supabaseClient.js   # Supabase configuration
-│   └── main.jsx            # Application entry point
-├── public/                 # Static assets
-├── .env.example            # Environment variables template
-├── package.json            # Dependencies and scripts
-├── vite.config.js          # Vite configuration
-└── tailwind.config.js      # Tailwind CSS configuration
+│   ├── components/                   # React components
+│   │   ├── OverviewTab.jsx          # KPI dashboard with key statistics
+│   │   ├── SectorsTab.jsx           # Sector-by-sector analysis
+│   │   ├── ImpactTab.jsx            # Impact severity visualizations
+│   │   ├── EvidenceTab.jsx          # Evidence for policy makers
+│   │   ├── InsightsTab.jsx          # Data quality & gap analysis
+│   │   ├── StatCard.jsx             # Reusable statistics card
+│   │   ├── ChartCard.jsx            # Reusable chart container
+│   │   └── ...                      # Other UI components
+│   ├── utils/                        # Utility functions
+│   │   ├── excelParser.js           # Excel file reading & parsing
+│   │   ├── dataValidator.js         # Data validation & quality checks
+│   │   ├── surveyDataTransformer.js # Transform 206 cols → dashboard format
+│   │   ├── dataLoader.js            # Orchestrate load/parse/transform
+│   │   └── dataTransform.js         # Aggregation & statistics
+│   ├── config/                       # Configuration
+│   │   └── surveyConfig.js          # Column definitions & validation rules
+│   ├── types/                        # Type definitions
+│   │   └── surveyTypes.js           # JSDoc types for survey data
+│   ├── test/                         # Test files
+│   ├── App.jsx                       # Main application component
+│   └── main.jsx                      # Application entry point
+├── scripts/                          # Data processing scripts
+│   ├── analyzeExcelData.js          # Analyze Excel file structure
+│   └── processData.js               # Process & validate survey data
+├── data/                             # Source Excel files (gitignored)
+│   ├── The Speak Out Survey (Responses) - Synthetic.xlsx
+│   └── Data mapping - Synthetic.xlsx
+├── public/                           # Static assets
+│   └── data/                         # Excel files for browser access
+├── DATA_IMPORT.md                    # Guide for adding new survey data
+├── package.json                      # Dependencies and scripts
+└── vite.config.js                    # Vite configuration
 ```
 
 ### Running Tests

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from './supabaseClient'
+import { loadSurveyDataFromPublic } from './utils/dataLoader'
 import OverviewTab from './components/OverviewTab'
 import SectorsTab from './components/SectorsTab'
 import ImpactTab from './components/ImpactTab'
@@ -10,6 +10,8 @@ import './App.css'
 /**
  * Main App Component - NDA Impact Dashboard
  * A Tortoise AI project for Speak Out Revolution & Can't Buy My Silence
+ *
+ * Updated to use real survey data from Excel files
  */
 function App() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -18,24 +20,33 @@ function App() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetchNDAResponses()
+    loadSurveyData()
   }, [])
 
-  async function fetchNDAResponses() {
+  async function loadSurveyData() {
     try {
       setLoading(true)
       setError(null)
 
-      const { data, error } = await supabase
-        .from('nda_responses')
-        .select('*')
+      // Load real survey data from Excel file
+      const result = await loadSurveyDataFromPublic(
+        'The Speak Out Survey (Responses) - Synthetic.xlsx',
+        { enrich: true }
+      )
 
-      if (error) throw error
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to load survey data')
+      }
 
-      console.log('Fetched NDA responses:', data)
-      setResponses(data || [])
+      console.log('Loaded survey data:', {
+        totalResponses: result.meta.totalResponses,
+        loadedAt: result.meta.loadedAt,
+        sample: result.data.slice(0, 3)
+      })
+
+      setResponses(result.data || [])
     } catch (err) {
-      console.error('Error fetching NDA responses:', err)
+      console.error('Error loading survey data:', err)
       setError(err.message)
     } finally {
       setLoading(false)
