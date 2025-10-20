@@ -8,7 +8,10 @@
       "Bash(tree -L 2 \"C:\\Users\\antjs\\nda-dashboard\\src\" -I 'node_modules')",
       "Bash(node scripts/analyzeExcelData.js)",
       "Bash(npm run data:process)",
-      "Bash(tree -L 2 -I 'node_modules|dist' --dirsfirst)"
+      "Bash(tree -L 2 -I 'node_modules|dist' --dirsfirst)",
+      "Bash(git add netlify.toml)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Netlify configuration for deployment\n\n- Set build command to npm run build\n- Set publish directory to dist\n- Add redirect rule for client-side routing\n- Specify Node.js version 18\n\nThis configuration is required for Netlify to properly build and deploy the Vite React application.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
